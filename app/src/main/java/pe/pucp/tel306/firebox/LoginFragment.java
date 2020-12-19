@@ -21,10 +21,8 @@ public class LoginFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static LoginFragment newInstance(String param1, String param2) {
-        LoginFragment fragment = new LoginFragment();
-
-        return fragment;
+    public static LoginFragment newInstance() {
+        return new LoginFragment();
     }
 
     @Override

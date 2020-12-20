@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
     public void  validarUsuario(){
         final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
+        //firebaseUser.getUid()
         if (firebaseUser != null){
             firebaseUser.reload().addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override

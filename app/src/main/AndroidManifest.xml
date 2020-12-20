@@ -7,9 +7,9 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_logoAlmacenamiento"
+        android:icon="@mipmap/ic_logodealmacenamiento"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_logoAlmacenamiento_round"
+        android:roundIcon="@mipmap/ic_logodealmacenamiento_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Lab5">
         <activity android:name=".AgregarFileActivity"></activity>

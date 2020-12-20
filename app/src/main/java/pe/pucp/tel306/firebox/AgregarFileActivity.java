@@ -11,6 +11,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.FileUtils;
@@ -18,11 +19,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
@@ -66,43 +70,68 @@ public class AgregarFileActivity extends AppCompatActivity {
 
     ///METODOS STORAGE - ROYER
 
-    public void subirArchivoConPutStream(View view) {
-        final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        TextView textView = findViewById(R.id.textViewPath);
-        int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+    public void subirArchivoConPutFile(View view) {
+
+        int permission = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE);
+
         if (permission == PackageManager.PERMISSION_GRANTED) {
+            //subir archivo a firebase storage
             StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-            File externalStoragePublicDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
-            File file = new File(externalStoragePublicDirectory, textView.getText().toString()); //pucp.jpg es el archivo que está en la carpeta PICTURES en android.
-            System.out.println(file.getParent()+ " AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-            try {
-                InputStream inputStream = new FileInputStream(file);
 
-                storageReference.child(firebaseUser.getUid() +"/"+ textView.getText()).putStream(inputStream) ///el nombre con el que va a aparecer en firebase storage
-                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                Log.d("infoApp", "subida exitosa");
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.d("infoApp", "error en la subida");
-                                e.printStackTrace();
-                            }
-                        });
+            //File externalStoragePublicDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
 
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
+            //File file = new File(externalStoragePublicDirectory, "Clase 12 - Firebase Storage.pdf");
 
+            Uri uri = Uri.fromFile(null); ///RECIBIR URI ENVIADO POR JULIO
+
+            StorageMetadata storageMetadata = new StorageMetadata.Builder()
+                    .setCustomMetadata("autor", "Stuardo Lucho")
+                    .setCustomMetadata("clase", "12")
+                    .build();
+
+            UploadTask task = storageReference
+                    .child("documentos").child("Firebase Storage3.pdf") ///nombre a colocar en firebase
+                    .putFile(uri, storageMetadata);
+
+
+            task.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Log.d("infoApp", "subida exitosa");
+                }
+            });
+            task.addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.d("infoApp", "error en la subida");
+                    e.printStackTrace();
+                }
+            });
+            task.addOnCanceledListener(new OnCanceledListener() {
+                @Override
+                public void onCanceled() {
+
+                }
+            });
+            task.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
+
+                    long bytesTransferred = snapshot.getBytesTransferred();
+                    long totalByteCount = snapshot.getTotalByteCount();
+
+                    double progreso = (100.0 * bytesTransferred) / totalByteCount;
+
+                    Log.d("progreso", String.valueOf(progreso));
+
+                }
+            });
 
         } else {
             ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 2);
         }
-
     }
 
     //en caso el permiso sea exitoso o denegado:

@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if(firebaseUser.isEmailVerified()){
-//                        startActivity(new Intent(MainActivity.this, AdminActivity.class));
+                        startActivity(new Intent(MainActivity.this, ArchivosActivity.class));
                     }else {
                         Toast.makeText(MainActivity.this, "Se le ha enviado un correo para verificar su cuenta", Toast.LENGTH_SHORT).show();
                         firebaseUser.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {

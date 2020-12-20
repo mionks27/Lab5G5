@@ -43,7 +43,8 @@ public class AgregarFileActivity extends AppCompatActivity {
     }
 
     public void pickFile(View view){
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
         startActivityForResult(Intent.createChooser(intent,"Seleccione Archivo para subir"),10);
 
@@ -55,7 +56,7 @@ public class AgregarFileActivity extends AppCompatActivity {
         switch (requestCode) {
             case 10:
                 if (resultCode == RESULT_OK) {
-                    String filePath = data.getData().getPath();
+                    String filePath = data.getData().getLastPathSegment();
                     System.out.println(filePath);
                     TextView archivo = findViewById(R.id.textViewPath);
                     archivo.setText(filePath);

@@ -5,6 +5,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.content.Intent;
@@ -23,12 +25,15 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ArchivosActivity extends AppCompatActivity {
 
@@ -38,17 +43,16 @@ public class ArchivosActivity extends AppCompatActivity {
         setContentView(R.layout.activity_archivos);
     }
 
-    public void agregarArchivo(View view){
+    public void agregarArchivo(View view) {
         startActivity(new Intent(ArchivosActivity.this, AgregarFileActivity.class));
     }
 
 
-
-    public void pickFile(View view){
+    public void pickFile(View view) {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
-        startActivityForResult(Intent.createChooser(intent,"Seleccione Archivo para subir"),10);
+        startActivityForResult(Intent.createChooser(intent, "Seleccione Archivo para subir"), 10);
 
     }
 
@@ -162,4 +166,60 @@ public class ArchivosActivity extends AppCompatActivity {
         return result;
     }
 
+
+    public void listarArchivos(View view) {
+        StorageReference reference = FirebaseStorage.getInstance().getReference();
+
+        reference.listAll()
+                .addOnSuccessListener(new OnSuccessListener<ListResult>() {
+                    @Override
+                    public void onSuccess(ListResult listResult) {
+                        int cantidadElementos = listResult.getItems().size();
+                        Log.d("infoApp", "cantidad de elementos: " + cantidadElementos);
+                        Log.d("infoApp", "carpetas: " + listResult.getPrefixes().size());
+                       ArrayList<Archivo> listaArchivos = new ArrayList<>();
+                        for (StorageReference ref : listResult.getPrefixes()) { ///con esto apuntas al contenido de cada carpeta //FOR INNECESARIO, CADA USUARIO DEBE VER SOLO SU CARPETA
+                            Log.d("infoApp", "carpeta: " + ref.getName());
+                            ref.listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
+                                @Override
+                                public void onSuccess(ListResult listResult) {
+                                    for (StorageReference ref2 : listResult.getItems()) {
+                                        ref2.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+                                            @Override
+                                            public void onSuccess(StorageMetadata storageMetadata) {
+                                                Log.d("infoApp", "getsize en bytes: " + storageMetadata.getSizeBytes());
+                                                Log.d("infoApp", "getcreation time in milisegundos: " + storageMetadata.getCreationTimeMillis());
+                                                Log.d("infoApp", "getname: " + storageMetadata.getName());
+                                                Archivo archivo = new Archivo();
+                                                archivo.setNombre(storageMetadata.getName());
+                                                archivo.setSizeEnBytes(storageMetadata.getSizeBytes());
+                                                archivo.setCreationTimeMillis(storageMetadata.getCreationTimeMillis());
+                                                listaArchivos.add(archivo);
+                                                ListarArchivosAdapter adapter = new ListarArchivosAdapter(listaArchivos,ArchivosActivity.this);
+                                                RecyclerView recyclerView = findViewById(R.id.idRecyclerView);
+                                                recyclerView.setAdapter(adapter);
+                                                recyclerView.setLayoutManager(new LinearLayoutManager(ArchivosActivity.this));
+                                                }
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.d("infoApp", "Un error aquí ups");
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        }
+
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                        Log.d("infoApp", "Error al listar");
+                    }
+                });
+    }
 }

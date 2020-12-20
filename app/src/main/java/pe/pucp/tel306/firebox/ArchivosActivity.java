@@ -41,6 +41,7 @@ public class ArchivosActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_archivos);
+        listarArchivos();
     }
 
     public void agregarArchivo(View view) {
@@ -167,7 +168,7 @@ public class ArchivosActivity extends AppCompatActivity {
     }
 
 
-    public void listarArchivos(View view) {
+    public void listarArchivos() {
         StorageReference reference = FirebaseStorage.getInstance().getReference();
 
         reference.listAll()

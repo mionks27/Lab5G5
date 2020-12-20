@@ -9,8 +9,10 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -25,6 +27,8 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+
+import java.io.File;
 
 public class ArchivosActivity extends AppCompatActivity {
 
@@ -65,6 +69,8 @@ public class ArchivosActivity extends AppCompatActivity {
     ///METODOS STORAGE - ROYER
 
     public void subirArchivoConPutFile(Uri uri) {
+
+        String name = getFileName(uri);
         final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         int permission = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE);
@@ -76,7 +82,7 @@ public class ArchivosActivity extends AppCompatActivity {
                     .build();
 
             UploadTask task = storageReference
-                    .child(firebaseUser.getUid()).child("Prueba.jpg") ///nombre a colocar en firebase
+                    .child(firebaseUser.getUid()).child(name) ///nombre a colocar en firebase
                     .putFile(uri, storageMetadata);
 
 
@@ -133,4 +139,27 @@ public class ArchivosActivity extends AppCompatActivity {
             }
         }
     }
+
+    public String getFileName(Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
+    }
+
 }

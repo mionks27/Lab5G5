@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.FileUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -44,7 +45,7 @@ public class AgregarFileActivity extends AppCompatActivity {
     public void pickFile(View view){
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("*/*");
-        startActivityForResult(intent,10);
+        startActivityForResult(Intent.createChooser(intent,"Seleccione Archivo para subir"),10);
 
     }
 
@@ -54,7 +55,8 @@ public class AgregarFileActivity extends AppCompatActivity {
         switch (requestCode) {
             case 10:
                 if (resultCode == RESULT_OK) {
-                    String filePath = String.valueOf(data.getData());
+                    String filePath = data.getData().getPath();
+                    System.out.println(filePath);
                     TextView archivo = findViewById(R.id.textViewPath);
                     archivo.setText(filePath);
                 }
@@ -70,8 +72,9 @@ public class AgregarFileActivity extends AppCompatActivity {
         int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
         if (permission == PackageManager.PERMISSION_GRANTED) {
             StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-            File externalStoragePublicDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-            File file = new File(externalStoragePublicDirectory, "pucp.jpg"); //pucp.jpg es el archivo que está en la carpeta PICTURES en android.
+            File externalStoragePublicDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+            File file = new File(externalStoragePublicDirectory, textView.getText().toString()); //pucp.jpg es el archivo que está en la carpeta PICTURES en android.
+            System.out.println(file.getParent()+ " AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
             try {
                 InputStream inputStream = new FileInputStream(file);
 

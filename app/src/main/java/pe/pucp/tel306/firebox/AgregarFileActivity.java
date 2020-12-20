@@ -5,11 +5,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
 import org.w3c.dom.Text;
+
+import java.util.List;
 
 public class AgregarFileActivity extends AppCompatActivity {
 
@@ -22,17 +25,15 @@ public class AgregarFileActivity extends AppCompatActivity {
     public void pickFile(View view){
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("*/*");
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-
-            startActivityForResult(Intent.createChooser(intent,"Seleccione un archivo para subir"),1);
+        startActivityForResult(intent,10);
 
     }
 
-    @SuppressLint("MissingSuperCall")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        switch (requestCode){
-            case 1:
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case 10:
                 if (resultCode == RESULT_OK) {
                     String filePath = data.getData().getPath();
                     TextView archivo = findViewById(R.id.textViewPath);

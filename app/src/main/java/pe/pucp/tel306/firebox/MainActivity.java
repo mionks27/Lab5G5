@@ -37,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
 
         FragmentTransaction fragmentTransaction = supportFragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.Fragments,loginFragment);
-        fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
 
@@ -73,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<Void> task) {
                     if(firebaseUser.isEmailVerified()){
                         startActivity(new Intent(MainActivity.this, ArchivosActivity.class));
+                        finish();
                     }else {
                         Toast.makeText(MainActivity.this, "Se le ha enviado un correo para verificar su cuenta", Toast.LENGTH_SHORT).show();
                         firebaseUser.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {

@@ -95,6 +95,8 @@ public class ArchivosActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     Log.d("infoApp", "subida exitosa");
+                    startActivity(new Intent(ArchivosActivity.this, ArchivosActivity.class));
+                    finish();
                 }
             });
             task.addOnFailureListener(new OnFailureListener() {

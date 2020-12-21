@@ -31,7 +31,8 @@ public class ListarArchivosAdapter extends RecyclerView.Adapter<ListarArchivosAd
     @Override
     public void onBindViewHolder(ArchivoViewHolder holder, int position) {
         Archivo archivo = listaArchivos.get(position);
-        String data = archivo.getNombre() + "/" + archivo.getCreationTimeMillis() + "/" + archivo.getSizeEnBytes();
+        String data = "Nombre: "+archivo.getNombre() +"\r\n"
+                        +"Bytes: " + archivo.getSizeEnBytes();
         holder.textView.setText(data);
     }
 

@@ -17,6 +17,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Arrays;
 import java.util.List;
@@ -60,19 +65,56 @@ public class MainActivity extends AppCompatActivity {
         if(requestCode ==1 ){
             validarUsuario();
         }
-
     }
 
     public void  validarUsuario(){
         final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         //firebaseUser.getUid()
+        //Log.d("infoApp",)
+
         if (firebaseUser != null){
             firebaseUser.reload().addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if(firebaseUser.isEmailVerified()){
-                        startActivity(new Intent(MainActivity.this, ArchivosActivity.class));
+                        //startActivity(new Intent(MainActivity.this, ArchivosActivity.class));
+
+                        //-------------------------------------------------------------------------------------------------------------------------------------------------------------
+                        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+                        databaseReference.child("users").addChildEventListener(new ChildEventListener() {
+                            @Override
+                            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+                                if(snapshot.getValue() != null){
+                                    UsuarioDto usuarioDto = snapshot.getValue(UsuarioDto.class);
+                                    if(usuarioDto.getUid().equalsIgnoreCase(firebaseUser.getUid())){
+                                        Log.d("infoApp","YA EXISTE ESTE USUARIO");
+                                        startActivity(new Intent(MainActivity.this, ArchivosActivity.class));
+                                    }
+                                    //Log.d("infoApp","NOMBRE : " + usuarioDto.getNombre() + " | UID : " + usuarioDto.getUid() + " | TIPO : " + usuarioDto.getTipo() + " | CAPACIDAD : " +usuarioDto.getCapacidad());
+                                }
+                            }
+                            @Override
+                            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                                if(snapshot.getValue() != null){
+                                    UsuarioDto usuarioDto = snapshot.getValue(UsuarioDto.class);
+                                    Log.d("infoApp","NOMBRE : " + usuarioDto.getNombre() + " | UID : " + usuarioDto.getUid() + " | TIPO : " + usuarioDto.getTipo() + " | CAPACIDAD : " +usuarioDto.getCapacidad());
+                                }
+                            }
+                            @Override
+                            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+                            }
+                            @Override
+                            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                            }
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                            }
+                        });
+                        //-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+                        startActivity(new Intent(MainActivity.this, RegistroActivity.class));
                     }else {
                         Toast.makeText(MainActivity.this, "Se le ha enviado un correo para verificar su cuenta", Toast.LENGTH_SHORT).show();
                         firebaseUser.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -87,5 +129,4 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-
 }

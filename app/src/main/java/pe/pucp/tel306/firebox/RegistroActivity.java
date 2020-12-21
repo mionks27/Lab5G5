@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -75,7 +76,7 @@ public class RegistroActivity extends AppCompatActivity {
         usuarioDto.setUid(firebaseUser.getUid());
 
         String tipoSeleccionado = null;
-        String [] lista = {"POLLITO        (1 BYTE)","PAVO        (10M BYTE)", "PAVAZO        (100G BYTE)","POLLÓN        (100T BYTE)"};
+        String [] lista = {"Free        (1 BYTE)","silver        (10M BYTE)", "Gold        (100G BYTE)","Black        (100T BYTE)"};
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,lista);
         Spinner spinner = findViewById(R.id.spinner);
         spinner.setAdapter(adapter);
@@ -87,16 +88,16 @@ public class RegistroActivity extends AppCompatActivity {
                 Log.d("infoApp","SELECCIONASTE ESTO : " + parent.getItemAtPosition(position).toString());
 
                 if(position == 0){
-                    usuarioDto.setTipo("POLLITO");
+                    usuarioDto.setTipo("Free");
                     usuarioDto.setCapacidad("1 BYTE");
                 }else if(position == 1){
-                    usuarioDto.setTipo("PAVO");
+                    usuarioDto.setTipo("Silver");
                     usuarioDto.setCapacidad("10M BYTE");
                 }else if(position == 2){
-                    usuarioDto.setTipo("PAVAZO");
+                    usuarioDto.setTipo("Gold");
                     usuarioDto.setCapacidad("100G BYTE");
                 }else if(position == 3){
-                    usuarioDto.setTipo("POLLÓN");
+                    usuarioDto.setTipo("Black");
                     usuarioDto.setCapacidad("100T BYTE");
                 }
             }
@@ -132,6 +133,10 @@ public class RegistroActivity extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        Intent intent = new Intent(RegistroActivity.this, ArchivosActivity.class);
+                        intent.putExtra("usuario", usuarioDto);
+                        startActivity(intent);
+                        finish();
                         Log.d("infoApp","GUARDADO EXITOSO EN TU DATABASE");
                         Log.d("infoApp","NOMBRE : " + usuarioDto.getNombre());
                         Log.d("infoApp","UID : " + usuarioDto.getUid());

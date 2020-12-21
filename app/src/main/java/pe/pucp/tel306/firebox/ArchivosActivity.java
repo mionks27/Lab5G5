@@ -37,11 +37,15 @@ import java.util.List;
 
 public class ArchivosActivity extends AppCompatActivity {
 
+    UsuarioDto usuarioDto = new UsuarioDto();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_archivos);
-        listarArchivos();
+        Intent intent =  getIntent();
+        usuarioDto = (UsuarioDto) intent.getSerializableExtra("usuario");
+        listarArchivos(usuarioDto);
     }
 
     public void agregarArchivo(View view) {
@@ -95,7 +99,9 @@ public class ArchivosActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     Log.d("infoApp", "subida exitosa");
-                    startActivity(new Intent(ArchivosActivity.this, ArchivosActivity.class));
+                    Intent intent = new Intent(ArchivosActivity.this, ArchivosActivity.class);
+                    intent.putExtra("usuario", usuarioDto);
+                    startActivity(intent);
                     finish();
                 }
             });
@@ -170,9 +176,15 @@ public class ArchivosActivity extends AppCompatActivity {
     }
 
 
-    public void listarArchivos() {
+    public void listarArchivos(UsuarioDto usuarioDto) {
         StorageReference reference = FirebaseStorage.getInstance().getReference();
-
+        final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        TextView textView = findViewById(R.id.textViewName);
+        textView.setText("Nombre: " +firebaseUser.getDisplayName());
+        TextView textView1 = findViewById(R.id.textViewMembresia);
+        textView1.setText("Tipo de cuenta: "+usuarioDto.getTipo());
+        TextView textView2 = findViewById(R.id.textViewCapacidadUsada);
+        textView2.setText("Capacidad: "+usuarioDto.getCapacidad());
         reference.listAll()
                 .addOnSuccessListener(new OnSuccessListener<ListResult>() {
                     @Override

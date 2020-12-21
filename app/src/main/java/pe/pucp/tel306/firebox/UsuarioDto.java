@@ -1,6 +1,8 @@
 package pe.pucp.tel306.firebox;
 
-public class UsuarioDto {
+import java.io.Serializable;
+
+public class UsuarioDto implements Serializable {
 
     private String uid;
     private String nombre;

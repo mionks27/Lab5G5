@@ -23,6 +23,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -89,7 +90,12 @@ public class MainActivity extends AppCompatActivity {
                                     UsuarioDto usuarioDto = snapshot.getValue(UsuarioDto.class);
                                     if(usuarioDto.getUid().equalsIgnoreCase(firebaseUser.getUid())){
                                         Log.d("infoApp","YA EXISTE ESTE USUARIO");
-                                        startActivity(new Intent(MainActivity.this, ArchivosActivity.class));
+                                        Intent intent = new Intent(MainActivity.this, ArchivosActivity.class);
+                                        intent.putExtra("usuario", usuarioDto);
+                                        startActivity(intent);
+                                        finish();
+                                    }else{
+                                        startActivity(new Intent(MainActivity.this, RegistroActivity.class));
                                         finish();
                                     }
                                     //Log.d("infoApp","NOMBRE : " + usuarioDto.getNombre() + " | UID : " + usuarioDto.getUid() + " | TIPO : " + usuarioDto.getTipo() + " | CAPACIDAD : " +usuarioDto.getCapacidad());
@@ -114,8 +120,6 @@ public class MainActivity extends AppCompatActivity {
                         });
                         //-------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-                        startActivity(new Intent(MainActivity.this, RegistroActivity.class));
-                        finish();
                     }else {
                         Toast.makeText(MainActivity.this, "Se le ha enviado un correo para verificar su cuenta", Toast.LENGTH_SHORT).show();
                         firebaseUser.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
